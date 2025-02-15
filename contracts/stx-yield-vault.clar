@@ -60,3 +60,41 @@
     )
   )
 )
+
+;; -------------------------------
+;; Admin: Fund the Reward Pool
+;; -------------------------------
+(define-public (fund-rewards (amount uint))
+  (begin
+    (asserts! (is-eq tx-sender ADMIN) (err u104))
+    (asserts! (> amount u0) (err u108))
+    (match (stx-transfer? amount tx-sender (as-contract tx-sender))
+      success
+         (begin
+           (var-set reward-pool (+ (var-get reward-pool) amount))
+           (ok true))
+      failure (err u101)
+    )
+  )
+)
+
+;; -------------------------------
+;; Get User Balance
+;; -------------------------------
+(define-read-only (get-user-balance (user principal))
+  (ok (default-to u0 (map-get? user-balances { user: user })))
+)
+
+;; -------------------------------
+;; Get Total Deposits
+;; -------------------------------
+(define-read-only (get-total-deposits)
+  (ok (var-get total-deposits))
+)
+
+;; -------------------------------
+;; Get Reward Pool
+;; -------------------------------
+(define-read-only (get-reward-pool)
+  (ok (var-get reward-pool))
+)
